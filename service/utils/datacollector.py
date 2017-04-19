@@ -24,11 +24,11 @@ def parse_json(res):
 
 
 def upload_to_database(timestamp, apartment, status, power):
-    data = {'timestamp': timestamp, 'apartment': apartment, 'status': status, 'power': power}
+    data = {'timestamp': timestamp, 'apartment_id': apartment, 'status': status, 'power': power}
     cursor.execute(
         """
-        INSERT INTO monitor_panelstatus (timestamp, apartment, status, power)
-        VALUES (%(timestamp)s, %(apartment)s, %(status)s, %(power)s);
+        INSERT INTO monitor_panelstatus (timestamp, apartment_id, status, power)
+        VALUES (%(timestamp)s, %(apartment_id)s, %(status)s, %(power)s);
         """,
         data)
     connection.commit()

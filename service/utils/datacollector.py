@@ -16,7 +16,11 @@ def parse_json(res):
 
     """
 
-    json = res.json()['currentData'][0]
+    try:
+        json = res.json()['currentData'][0]
+    except:
+        return 'NO DATA', None
+
     if u'status' in json.keys():
         return json['status'], json['currentData']
     else:
@@ -50,20 +54,23 @@ client = requests.session()
 try:
     while True:
         timestamp = datetime.datetime.now()
+        delay = random.randint(30, 90)
         res_ref = client.get(CURRENT_PRODUCTION_URL % PANEL_IDS[1])
         res = client.get(CURRENT_PRODUCTION_URL % PANEL_IDS[11])
 
-        ref_status, ref_power = parse_json(res_ref)
-        status, power = parse_json(res)
-        print timestamp, '  Apartment 01: status = %s, power = %s' % (ref_status, ref_power)
-        print timestamp, '  Apartment 11: status = %s, power = %s' % (status, power), '(delay =',
+        if res_ref.status_code == 200 and res.status_code == 200:
+            ref_status, ref_power = parse_json(res_ref)
+            status, power = parse_json(res)
+            print timestamp, '  Apartment 01: status = %s, power = %s' % (ref_status, ref_power)
+            print timestamp, '  Apartment 11: status = %s, power = %s' % (status, power), '(delay =',
 
-        if not 'ERROR' == ref_status:
-            upload_to_database(timestamp, 1, ref_status, ref_power)
-            upload_to_database(timestamp, 11, status, power)
+            if not 'ERROR' == ref_status:
+                upload_to_database(timestamp, 1, ref_status, ref_power)
+                upload_to_database(timestamp, 11, status, power)
 
-        delay = random.randint(30, 90)
-        print str(delay) + ' s)'
+            print str(delay) + ' s)'
+        else:
+            print timestamp, res_ref.status_code, res.status_code
         time.sleep(delay)
 
 except KeyboardInterrupt:

@@ -1,0 +1,50 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Hourly</title>
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+        <link rel="stylesheet" href="/resources/demos/style.css">
+        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+        <script>
+          var ISO8601DateFormat = {dateFormat: "yy-mm-dd"};
+          $( function() {
+            $( "#startdatepicker" ).datepicker(ISO8601DateFormat);
+            $( "#enddatepicker" ).datepicker(ISO8601DateFormat);
+          } );
+        </script>
+    </head>
+
+    <body>
+
+    <form action="{% url 'downtime_data' %}" method="post">
+        {% csrf_token %}
+        <input type="text" name="startdate" id="startdatepicker" />
+        <input type="text" name="enddate" id="enddatepicker" />
+        <input type="submit" value="Send" />
+        <select name="interval">
+            <option value="720">30 dage</option>
+            <option value="168">7 dage</option>
+            <option value="24">24 timer</option>
+            <option value="1">1 time</option>
+        </select>
+    </form>
+
+    {% comment %}
+    <p>Date: <input type="text" id="datepicker"></p>
+
+        {% if panel_list %}
+            {% for panel in panel_list %}
+                {{panel.status}}<br />
+            {% endfor %}
+        {% else %}
+            <p>Too bad</p>
+        {% endif %}
+
+    {% endcomment %}
+
+    </body>
+
+</html>
+

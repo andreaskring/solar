@@ -1,7 +1,10 @@
 import requests, datetime, time, psycopg2, random
+import evishine_html_parser
 random.seed()
 
-PANEL_IDS = {1: 36976, 11: 37392}
+parser = evishine_html_parser.EvishineHTMLParser()
+
+PANEL_IDS = parser.get_panel_ids()
 CURRENT_PRODUCTION_URL = 'https://evishine.dk/data/json_data/17249/%s'
 
 
@@ -55,22 +58,24 @@ try:
     while True:
         timestamp = datetime.datetime.now()
         delay = random.randint(30, 90)
-        res_ref = client.get(CURRENT_PRODUCTION_URL % PANEL_IDS[1])
-        res = client.get(CURRENT_PRODUCTION_URL % PANEL_IDS[11])
+        # res_ref = client.get(CURRENT_PRODUCTION_URL % PANEL_IDS[1])
+        # res = client.get(CURRENT_PRODUCTION_URL % PANEL_IDS[11])
 
-        if res_ref.status_code == 200 and res.status_code == 200:
-            ref_status, ref_power = parse_json(res_ref)
-            status, power = parse_json(res)
-            print timestamp, '  Apartment 01: status = %s, power = %s' % (ref_status, ref_power)
-            print timestamp, '  Apartment 11: status = %s, power = %s' % (status, power), '(delay =',
+        ref_status = 'ERROR'
+        for apartment, panel_id in PANEL_IDS:
+            r = client.get(CURRENT_PRODUCTION_URL % panel_id)
+            if r.status_code == 200:
+                status, power = parse_json(r)
+                if apartment == 1:
+                    ref_status = status
+                print timestamp, '  Apartment %s: status = %s, power = %s' % (apartment, status, power)
 
-            if not 'ERROR' == ref_status:
-                upload_to_database(timestamp, 1, ref_status, ref_power)
-                upload_to_database(timestamp, 11, status, power)
+                if not 'ERROR' == ref_status:
+                    upload_to_database(timestamp, apartment, status, power)
 
-            print str(delay) + ' s)'
-        else:
-            print timestamp, res_ref.status_code, res.status_code
+                print str(delay) + ' s)'
+            else:
+                print timestamp, r.status_code
         time.sleep(delay)
 
 except KeyboardInterrupt:

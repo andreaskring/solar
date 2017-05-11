@@ -9,7 +9,7 @@ class EvishineHTMLParser(HTMLParser.HTMLParser):
         HTMLParser.HTMLParser.__init__(self)
         self.current_tag = None
         self.current_attrs = None
-        self.panel_ids = []
+        self.panel_ids = {}
 
     def handle_starttag(self, tag, attrs):
         self.current_tag = tag
@@ -18,7 +18,9 @@ class EvishineHTMLParser(HTMLParser.HTMLParser):
     def handle_data(self, data):
         if self.current_tag == 'a':
             if data[:10] == 'Skovfyrvej' and not 'Nedlagt' in data:
-                self.panel_ids.append(self.current_attrs[0][1].split('&')[0].split('id=')[1])
+                apartment = int(data.split()[1])
+                panel_id = self.current_attrs[0][1].split('&')[0].split('id=')[1]
+                self.panel_ids[apartment] = int(panel_id)
 
     def handle_endtag(self, tag):
         pass

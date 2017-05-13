@@ -1,0 +1,26 @@
+<html>
+    <head>
+        <title>Downtime Data</title>
+    </head>
+
+    <body>
+
+        {% if timestamp_percentage %}
+            <table border="1">
+                {% for tp in timestamp_percentage %}
+                <tr>
+                    <td>{{tp.starttime}}</td>
+                    <td>{{tp.endtime}}</td>
+                    <td>{{tp.percentage}}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <p>Too bad</p>
+        {% endif %}
+
+
+    </body>
+
+</html>
+

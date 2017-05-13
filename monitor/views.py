@@ -22,7 +22,7 @@ def home(requests):
 def downtime_form(request):
     panel_list = PanelStatus.objects.all()
     context = {'panel_list': panel_list}
-    return render(request, 'monitor/downtime.html', context)
+    return render(request, 'monitor/downtime-form.html', context)
 
 
 # def get_timedelta(request):
@@ -46,12 +46,14 @@ def downtime_data(request):
 
     apartment = 11
 
-    start_date = datetime.date(start_year, start_month, start_day)
-    end_date = datetime.date(end_year, end_month, end_day)
+    start_date = datetime.datetime(start_year, start_month, start_day, 0, 0, 0)
+    end_date = datetime.datetime(end_year, end_month, end_day, 0, 0, 0)
     current_timestamp = start_date
 
+    data = []
     while current_timestamp < end_date:
-        next_timestamp = current_timestamp + datetime.timedelta(hours=int(request.POST['interval']))
+        # next_timestamp = current_timestamp + datetime.timedelta(hours=int(request.POST['interval']))
+        next_timestamp = current_timestamp + datetime.timedelta(hours=1)
         count_all = PanelStatus.objects.filter(timestamp__gte=current_timestamp,
                                                timestamp__lt=next_timestamp,
                                                apartment=apartment,
@@ -61,8 +63,17 @@ def downtime_data(request):
                                                  apartment=apartment,
                                                  status='ERROR'
                                                  ).count()
-        percentage = 100*float(count_error)/count_all
+        if not count_all == 0:
+            percentage = 100 * float(count_error) / count_all
+        else:
+            percentage = 'Ingen data'
+        timestamp_percentage = {'starttime': current_timestamp.isoformat(),
+                                'endtime': next_timestamp.isoformat(),
+                                'percentage': percentage}
+        data.append(timestamp_percentage)
 
         current_timestamp = next_timestamp
+
+    context = {'timestamp_percentage': data}
     # return HttpResponse(request.POST['startdate'] + ' ' + request.POST['enddate'])
-    return HttpResponse(100*float(count_error)/count_all)
+    return render(request, 'monitor/downtime-data.html', context)

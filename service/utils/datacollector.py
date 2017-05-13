@@ -62,8 +62,8 @@ try:
         # res = client.get(CURRENT_PRODUCTION_URL % PANEL_IDS[11])
 
         ref_status = 'ERROR'
-        for apartment, panel_id in PANEL_IDS:
-            r = client.get(CURRENT_PRODUCTION_URL % panel_id)
+        for apartment in PANEL_IDS.keys():
+            r = client.get(CURRENT_PRODUCTION_URL % PANEL_IDS[apartment])
             if r.status_code == 200:
                 status, power = parse_json(r)
                 if apartment == 1:
